@@ -12,25 +12,30 @@ csrf = CSRFProtect()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = config('SECRET_KEY', default='your-secret-key')
+    app.config['SECRET_KEY'] = config('SECRET_KEY', default='your-secret-key-here')
     app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL', default='sqlite:///blog.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
-    login_manager.init_app(app)
-    login_manager.login_view = 'auth.login'
     migrate.init_app(app, db)
+    login_manager.init_app(app)
     csrf.init_app(app)
 
-    # Import Blueprints AFTER extensions initialized
+    login_manager.login_view = 'auth.login'
+
     from app.routes.auth import auth_bp
     from app.routes.posts import posts_bp
     from app.routes.admin import admin_bp
-    from app.routes.debug import debug_bp  # ✅ NEW
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(posts_bp)
     app.register_blueprint(admin_bp)
-    app.register_blueprint(debug_bp)      # ✅ NEW
+
+    # ✅ Safe migration before first request
+    from flask_migrate import upgrade
+    @app.before_first_request
+    def do_upgrade():
+        with app.app_context():
+            upgrade()
 
     return app

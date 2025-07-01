@@ -1,8 +1,3 @@
-from app import create_app, db
-from flask_migrate import upgrade
+from app import create_app
 
 app = create_app()
-
-@app.before_first_request
-def do_upgrade():
-    upgrade()
