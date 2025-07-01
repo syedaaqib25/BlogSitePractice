@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Posts</h1>
+    {% for post in posts %}
+        <h2>{{ post.title }}</h2>
+        <p>{{ post.content }}</p>
+        <p>By {{ post.author.email }} on {{ post.created_at }}</p>
+        {% if current_user == post.author %}
+            <a href="{{ url_for('posts.edit', id=post.id) }}">Edit</a>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
