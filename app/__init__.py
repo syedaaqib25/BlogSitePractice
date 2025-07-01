@@ -12,7 +12,7 @@ csrf = CSRFProtect()
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = config('SECRET_KEY', default='your-secret-key-here')
+    app.config['SECRET_KEY'] = config('SECRET_KEY', default='your-secret-key')
     app.config['SQLALCHEMY_DATABASE_URI'] = config('DATABASE_URL', default='sqlite:///blog.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -22,16 +22,15 @@ def create_app():
     migrate.init_app(app, db)
     csrf.init_app(app)
 
+    # Import Blueprints AFTER extensions initialized
     from app.routes.auth import auth_bp
     from app.routes.posts import posts_bp
     from app.routes.admin import admin_bp
+    from app.routes.debug import debug_bp  # ✅ NEW
+
     app.register_blueprint(auth_bp)
     app.register_blueprint(posts_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(debug_bp)      # ✅ NEW
 
     return app
-
-@login_manager.user_loader
-def load_user(user_id):
-    from app.models import User
-    return User.query.get(int(user_id))
