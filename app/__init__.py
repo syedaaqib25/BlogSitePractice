@@ -31,11 +31,9 @@ def create_app():
     app.register_blueprint(posts_bp)
     app.register_blueprint(admin_bp)
 
-    # ✅ Safe migration before first request
     from flask_migrate import upgrade
-    @app.before_first_request
-    def do_upgrade():
-        with app.app_context():
-            upgrade()
+    with app.app_context():
+        upgrade()
+
 
     return app
