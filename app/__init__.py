@@ -35,5 +35,11 @@ def create_app():
     with app.app_context():
         upgrade()
 
+# ✅ Required by Flask-Login to work
+    from app.models import User
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     return app
